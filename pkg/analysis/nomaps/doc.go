@@ -1,11 +1,24 @@
 /*
-nophase provides a linter to ensure that structs do not contain a Phase field.
+nomaps provides a linter to ensure that structs do not contain a map field.
 
-Phase fields are deprecated and conditions should be preferred. Avoid phase like enum
-fields.
+Map fields are discouraged in Kubernetes API types. Use a list of key-value pairs.
 
-The linter will flag any struct field containing the substring 'phase'. This means both
-Phase and FooPhase will be flagged.
+The following struct isn't recommended
+
+type Spec struct {
+	Pairs map[string]string
+}
+
+Instead, use a list of key-value pairs
+
+type Spec struct {
+	Pairs []Pair
+}
+
+type Pair struct {
+	Key   string
+	Value string
+}
 */
 
 package nomaps
