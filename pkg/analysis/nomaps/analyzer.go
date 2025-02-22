@@ -55,7 +55,12 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		}
 
 		for _, field := range structType.Fields.List {
-			m, ok := pass.TypesInfo.TypeOf(field.Type).Underlying().(*types.Map)
+			var m *types.Map
+			underlyingType := pass.TypesInfo.TypeOf(field.Type).Underlying()
+			if ptr, ok := underlyingType.(*types.Pointer); ok {
+				underlyingType = ptr.Elem().Underlying()
+			}
+			m, ok := underlyingType.(*types.Map)
 			if !ok {
 				continue
 			}
