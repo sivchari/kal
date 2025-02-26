@@ -21,7 +21,7 @@ type JSONTagTestStruct struct {
 	Ignored              string `json:"-"`
 
 	IgnoredAnonymousStruct struct {
-		NoJSONTag string `json:"noJSONTag"`
+		A string `json:""` // want "field A has empty json tag"
 	} `json:"-"`
 
 	A `json:",inline"`
