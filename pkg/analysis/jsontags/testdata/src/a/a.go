@@ -18,7 +18,11 @@ type JSONTagTestStruct struct {
 	JSONTagWithID        string `json:"jsonTagWithID"`
 	JSONTagWithTTL       string `json:"jsonTagWithTTL"`
 	JSONTagWithGiB       string `json:"jsonTagWithGiB"`
-	IgnoreTag            string `json:"-"`
+	Ignored              string `json:"-"`
+
+	IgnoredAnonymousStruct struct {
+		NoJSONTag string `json:"noJSONTag"`
+	} `json:"-"`
 
 	A `json:",inline"`
 	B `json:"bar,omitempty"`
