@@ -163,6 +163,48 @@ var _ = Describe("LintersConfig", func() {
 			expectedErr: "lintersConfig.jsonTags.jsonTagRegex: Invalid value: \"^[a-z][a-z0-9]*(?:[A-Z][a-z0-9]*\": invalid regex: error parsing regexp: missing closing ): `^[a-z][a-z0-9]*(?:[A-Z][a-z0-9]*`",
 		}),
 
+		// NoMapsConfig validation
+		Entry("With a valid NoMapsConfig", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				NoMaps: config.NoMapsConfig{
+					Policy: "",
+				},
+			},
+			expectedErr: "",
+		}),
+		Entry("With a valid NoMapsConfig: enforce is specified", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				NoMaps: config.NoMapsConfig{
+					Policy: config.NoMapsEnforce,
+				},
+			},
+			expectedErr: "",
+		}),
+		Entry("With a valid NoMapsConfig: allowStringToStringMaps is specified", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				NoMaps: config.NoMapsConfig{
+					Policy: config.NoMapsAllowStringToStringMaps,
+				},
+			},
+			expectedErr: "",
+		}),
+		Entry("With a valid NoMapsConfig: ignore is specified", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				NoMaps: config.NoMapsConfig{
+					Policy: config.NoMapsIgnore,
+				},
+			},
+			expectedErr: "",
+		}),
+		Entry("With a invalid NoMapsConfig", validateLintersConfigTableInput{
+			config: config.LintersConfig{
+				NoMaps: config.NoMapsConfig{
+					Policy: "invalid",
+				},
+			},
+			expectedErr: `lintersConfig.nomaps.policy: Invalid value: "invalid": invalid value, must be one of "Enforce", "AllowStringToStringMaps", "Ignore" or omitted`,
+		}),
+
 		// OptionalOrRequiredConfig validation
 		Entry("With a valid OptionalOrRequiredConfig", validateLintersConfigTableInput{
 			config: config.LintersConfig{

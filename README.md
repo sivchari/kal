@@ -239,6 +239,20 @@ Floating-point values cannot be reliably round-tripped without changing and have
 Their use should be avoided as much as possible.
 They should never be used in spec.
 
+## Nomaps
+
+The `nomaps` linter checks the usage of map types.
+
+Maps are discouraged apart from `map[string]string` which is used for labels and annotations in Kubernetes APIs since it's hard to distinguish between structs and maps in spec. Instead of plain map, lists of named subobjects are preferred.
+
+### Configuration
+
+```yaml
+lintersConfig:
+  nomaps:
+    policy: Enforce | AllowStringToStringMaps | Ignore # Determines how the linter should handle maps of simple types. Defaults to AllowStringToStringMaps.
+```
+
 ## Nophase
 
 The `nophase` linter checks that the fields in the API types don't contain a 'Phase', or any field which contains 'Phase' as a substring, e.g MachinePhase.
