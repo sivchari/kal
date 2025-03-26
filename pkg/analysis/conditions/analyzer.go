@@ -1,13 +1,13 @@
 package conditions
 
 import (
-	"errors"
 	"fmt"
 	"go/ast"
 	"go/token"
 	"slices"
 	"strings"
 
+	kalerrors "github.com/JoelSpeed/kal/pkg/analysis/errors"
 	"github.com/JoelSpeed/kal/pkg/analysis/helpers/extractjsontags"
 	"github.com/JoelSpeed/kal/pkg/analysis/helpers/markers"
 	"github.com/JoelSpeed/kal/pkg/config"
@@ -47,11 +47,6 @@ func init() {
 	)
 }
 
-var (
-	errCouldNotGetInspector = errors.New("could not get inspector")
-	errCouldNotGetMarkers   = errors.New("could not get markers")
-)
-
 type analyzer struct {
 	isFirstField     config.ConditionsFirstField
 	useProtobuf      config.ConditionsUseProtobuf
@@ -76,15 +71,15 @@ func newAnalyzer(cfg config.ConditionsConfig) *analysis.Analyzer {
 	}
 }
 
-func (a *analyzer) run(pass *analysis.Pass) (interface{}, error) {
+func (a *analyzer) run(pass *analysis.Pass) (any, error) {
 	inspect, ok := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	markersAccess, ok := pass.ResultOf[markers.Analyzer].(markers.Markers)
 	if !ok {
-		return nil, errCouldNotGetMarkers
+		return nil, kalerrors.ErrCouldNotGetMarkers
 	}
 
 	// Filter to structs so that we can iterate over fields in a struct.

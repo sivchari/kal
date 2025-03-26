@@ -1,9 +1,9 @@
 package nofloats
 
 import (
-	"errors"
 	"go/ast"
 
+	kalerrors "github.com/JoelSpeed/kal/pkg/analysis/errors"
 	"github.com/JoelSpeed/kal/pkg/analysis/utils"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
@@ -11,10 +11,6 @@ import (
 )
 
 const name = "nofloats"
-
-var (
-	errCouldNotGetInspector = errors.New("could not get inspector")
-)
 
 // Analyzer is the analyzer for the nofloats package.
 // It checks that no struct fields are `float`.
@@ -28,7 +24,7 @@ var Analyzer = &analysis.Analyzer{
 func run(pass *analysis.Pass) (interface{}, error) {
 	inspect, ok := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	// Filter to structs so that we can look at fields within structs.

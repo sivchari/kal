@@ -1,24 +1,21 @@
 package commentstart
 
 import (
-	"errors"
 	"fmt"
 	"go/ast"
 	"go/token"
 	"go/types"
 	"strings"
 
+	"golang.org/x/tools/go/analysis"
+
+	kalerrors "github.com/JoelSpeed/kal/pkg/analysis/errors"
 	"github.com/JoelSpeed/kal/pkg/analysis/helpers/extractjsontags"
 	"github.com/JoelSpeed/kal/pkg/analysis/helpers/inspector"
 	"github.com/JoelSpeed/kal/pkg/analysis/helpers/markers"
-	"golang.org/x/tools/go/analysis"
 )
 
 const name = "commentstart"
-
-var (
-	errCouldNotGetInspector = errors.New("could not get inspector")
-)
 
 // Analyzer is the analyzer for the commentstart package.
 // It checks that all struct fields in an API have a godoc, and that the godoc starts with the serialised field name.
@@ -29,10 +26,10 @@ var Analyzer = &analysis.Analyzer{
 	Requires: []*analysis.Analyzer{inspector.Analyzer},
 }
 
-func run(pass *analysis.Pass) (interface{}, error) {
+func run(pass *analysis.Pass) (any, error) {
 	inspect, ok := pass.ResultOf[inspector.Analyzer].(inspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	inspect.InspectFields(func(field *ast.Field, stack []ast.Node, jsonTagInfo extractjsontags.FieldTagInfo, markersAccess markers.Markers) {

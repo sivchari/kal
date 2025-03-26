@@ -1,20 +1,17 @@
 package integers
 
 import (
-	"errors"
 	"go/ast"
 
-	"github.com/JoelSpeed/kal/pkg/analysis/utils"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
 	"golang.org/x/tools/go/ast/inspector"
+
+	kalerrors "github.com/JoelSpeed/kal/pkg/analysis/errors"
+	"github.com/JoelSpeed/kal/pkg/analysis/utils"
 )
 
 const name = "integers"
-
-var (
-	errCouldNotGetInspector = errors.New("could not get inspector")
-)
 
 // Analyzer is the analyzer for the integers package.
 // It checks that no struct fields or type aliases are `int`, or unsigned integers.
@@ -25,10 +22,10 @@ var Analyzer = &analysis.Analyzer{
 	Requires: []*analysis.Analyzer{inspect.Analyzer},
 }
 
-func run(pass *analysis.Pass) (interface{}, error) {
+func run(pass *analysis.Pass) (any, error) {
 	inspect, ok := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	// Filter to fields so that we can look at fields within structs.

@@ -1,9 +1,9 @@
 package nobools
 
 import (
-	"errors"
 	"go/ast"
 
+	kalerrors "github.com/JoelSpeed/kal/pkg/analysis/errors"
 	"github.com/JoelSpeed/kal/pkg/analysis/utils"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
@@ -11,10 +11,6 @@ import (
 )
 
 const name = "nobools"
-
-var (
-	errCouldNotGetInspector = errors.New("could not get inspector")
-)
 
 // Analyzer is the analyzer for the nobools package.
 // It checks that no struct fields are `bool`.
@@ -25,10 +21,10 @@ var Analyzer = &analysis.Analyzer{
 	Requires: []*analysis.Analyzer{inspect.Analyzer},
 }
 
-func run(pass *analysis.Pass) (interface{}, error) {
+func run(pass *analysis.Pass) (any, error) {
 	inspect, ok := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	// Filter to fields so that we can look at fields within structs.

@@ -1,11 +1,11 @@
 package statussubresource
 
 import (
-	"errors"
 	"fmt"
 	"go/ast"
 	"go/token"
 
+	kalerrors "github.com/JoelSpeed/kal/pkg/analysis/errors"
 	"github.com/JoelSpeed/kal/pkg/analysis/helpers/extractjsontags"
 	"github.com/JoelSpeed/kal/pkg/analysis/helpers/markers"
 	"golang.org/x/tools/go/analysis"
@@ -25,12 +25,6 @@ const (
 	kubebuilderStatusSubresourceMarker = "kubebuilder:subresource:status"
 )
 
-var (
-	errCouldNotGetInspector = errors.New("could not get inspector")
-	errCouldNotGetMarkers   = errors.New("could not get markers")
-	errCouldNotGetJSONTags  = errors.New("could not get json tags")
-)
-
 type analyzer struct{}
 
 // newAnalyzer creates a new analyzer with the given configuration.
@@ -45,20 +39,20 @@ func newAnalyzer() *analysis.Analyzer {
 	}
 }
 
-func (a *analyzer) run(pass *analysis.Pass) (interface{}, error) {
+func (a *analyzer) run(pass *analysis.Pass) (any, error) {
 	inspect, ok := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	markersAccess, ok := pass.ResultOf[markers.Analyzer].(markers.Markers)
 	if !ok {
-		return nil, errCouldNotGetMarkers
+		return nil, kalerrors.ErrCouldNotGetMarkers
 	}
 
 	jsonTags, ok := pass.ResultOf[extractjsontags.Analyzer].(extractjsontags.StructFieldTags)
 	if !ok {
-		return nil, errCouldNotGetJSONTags
+		return nil, kalerrors.ErrCouldNotGetJSONTags
 	}
 
 	// Filter to type specs so we can get the names of types

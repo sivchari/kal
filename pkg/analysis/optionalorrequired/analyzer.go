@@ -1,10 +1,10 @@
 package optionalorrequired
 
 import (
-	"errors"
 	"fmt"
 	"go/ast"
 
+	kalerrors "github.com/JoelSpeed/kal/pkg/analysis/errors"
 	"github.com/JoelSpeed/kal/pkg/analysis/helpers/extractjsontags"
 	"github.com/JoelSpeed/kal/pkg/analysis/helpers/inspector"
 	"github.com/JoelSpeed/kal/pkg/analysis/helpers/markers"
@@ -36,10 +36,6 @@ func init() {
 		KubebuilderRequiredMarker,
 	)
 }
-
-var (
-	errCouldNotGetInspector = errors.New("could not get inspector")
-)
 
 type analyzer struct {
 	primaryOptionalMarker   string
@@ -81,10 +77,10 @@ func newAnalyzer(cfg config.OptionalOrRequiredConfig) *analysis.Analyzer {
 	}
 }
 
-func (a *analyzer) run(pass *analysis.Pass) (interface{}, error) {
+func (a *analyzer) run(pass *analysis.Pass) (any, error) {
 	inspect, ok := pass.ResultOf[inspector.Analyzer].(inspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	inspect.InspectFields(func(field *ast.Field, stack []ast.Node, jsonTagInfo extractjsontags.FieldTagInfo, markersAccess markers.Markers) {

@@ -1,24 +1,18 @@
 package inspector
 
 import (
-	"errors"
 	"reflect"
 
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
 	astinspector "golang.org/x/tools/go/ast/inspector"
 
+	kalerrors "github.com/JoelSpeed/kal/pkg/analysis/errors"
 	"github.com/JoelSpeed/kal/pkg/analysis/helpers/extractjsontags"
 	"github.com/JoelSpeed/kal/pkg/analysis/helpers/markers"
 )
 
 const name = "inspector"
-
-var (
-	errCouldNotGetInspector = errors.New("could not get inspector")
-	errCouldNotGetJSONTags  = errors.New("could not get json tags")
-	errCouldNotGetMarkers   = errors.New("could not get markers")
-)
 
 // Analyzer is the analyzer for the inspector package.
 // It provides common functionality for analyzers that need to inspect fields and struct.
@@ -31,20 +25,20 @@ var Analyzer = &analysis.Analyzer{
 	ResultType: reflect.TypeOf(newInspector(nil, nil, nil)),
 }
 
-func run(pass *analysis.Pass) (interface{}, error) {
+func run(pass *analysis.Pass) (any, error) {
 	astinspector, ok := pass.ResultOf[inspect.Analyzer].(*astinspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	jsonTags, ok := pass.ResultOf[extractjsontags.Analyzer].(extractjsontags.StructFieldTags)
 	if !ok {
-		return nil, errCouldNotGetJSONTags
+		return nil, kalerrors.ErrCouldNotGetJSONTags
 	}
 
 	markersAccess, ok := pass.ResultOf[markers.Analyzer].(markers.Markers)
 	if !ok {
-		return nil, errCouldNotGetMarkers
+		return nil, kalerrors.ErrCouldNotGetMarkers
 	}
 
 	return newInspector(astinspector, jsonTags, markersAccess), nil

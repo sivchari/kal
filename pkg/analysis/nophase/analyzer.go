@@ -1,10 +1,10 @@
 package nophase
 
 import (
-	"errors"
 	"go/ast"
 	"strings"
 
+	kalerrors "github.com/JoelSpeed/kal/pkg/analysis/errors"
 	"github.com/JoelSpeed/kal/pkg/analysis/helpers/extractjsontags"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
@@ -12,11 +12,6 @@ import (
 )
 
 const name = "nophase"
-
-var (
-	errCouldNotGetInspector = errors.New("could not get inspector")
-	errCouldNotGetJSONTags  = errors.New("could not get json tags")
-)
 
 // Analyzer is the analyzer for the nophase package.
 // It checks that no struct fields named 'phase', or that contain phase as a
@@ -28,15 +23,15 @@ var Analyzer = &analysis.Analyzer{
 	Requires: []*analysis.Analyzer{inspect.Analyzer, extractjsontags.Analyzer},
 }
 
-func run(pass *analysis.Pass) (interface{}, error) {
+func run(pass *analysis.Pass) (any, error) {
 	inspect, ok := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	jsonTags, ok := pass.ResultOf[extractjsontags.Analyzer].(extractjsontags.StructFieldTags)
 	if !ok {
-		return nil, errCouldNotGetJSONTags
+		return nil, kalerrors.ErrCouldNotGetJSONTags
 	}
 
 	// Filter to fields so that we can iterate over fields in a struct.

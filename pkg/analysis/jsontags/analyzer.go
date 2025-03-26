@@ -1,17 +1,17 @@
 package jsontags
 
 import (
-	"errors"
 	"fmt"
 	"go/ast"
 	"regexp"
 
+	"golang.org/x/tools/go/analysis"
+
+	kalerrors "github.com/JoelSpeed/kal/pkg/analysis/errors"
 	"github.com/JoelSpeed/kal/pkg/analysis/helpers/extractjsontags"
 	"github.com/JoelSpeed/kal/pkg/analysis/helpers/inspector"
 	"github.com/JoelSpeed/kal/pkg/analysis/helpers/markers"
 	"github.com/JoelSpeed/kal/pkg/config"
-
-	"golang.org/x/tools/go/analysis"
 )
 
 const (
@@ -19,10 +19,6 @@ const (
 	camelCaseRegex = "^[a-z][a-z0-9]*(?:[A-Z][a-z0-9]*)*$"
 
 	name = "jsontags"
-)
-
-var (
-	errCouldNotGetInspector = errors.New("could not get inspector")
 )
 
 type analyzer struct {
@@ -50,10 +46,10 @@ func newAnalyzer(cfg config.JSONTagsConfig) (*analysis.Analyzer, error) {
 	}, nil
 }
 
-func (a *analyzer) run(pass *analysis.Pass) (interface{}, error) {
+func (a *analyzer) run(pass *analysis.Pass) (any, error) {
 	inspect, ok := pass.ResultOf[inspector.Analyzer].(inspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	inspect.InspectFields(func(field *ast.Field, stack []ast.Node, jsonTagInfo extractjsontags.FieldTagInfo, markersAccess markers.Markers) {
