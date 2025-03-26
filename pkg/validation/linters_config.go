@@ -16,6 +16,7 @@ func ValidateLintersConfig(lc config.LintersConfig, fldPath *field.Path) field.E
 
 	fieldErrors = append(fieldErrors, validateConditionsConfig(lc.Conditions, fldPath.Child("conditions"))...)
 	fieldErrors = append(fieldErrors, validateJSONTagsConfig(lc.JSONTags, fldPath.Child("jsonTags"))...)
+	fieldErrors = append(fieldErrors, validateNoMapsConfig(lc.NoMaps, fldPath.Child("nomaps"))...)
 	fieldErrors = append(fieldErrors, validateOptionalOrRequiredConfig(lc.OptionalOrRequired, fldPath.Child("optionalOrRequired"))...)
 	fieldErrors = append(fieldErrors, validateRequiredFieldsConfig(lc.RequiredFields, fldPath.Child("requiredFields"))...)
 
@@ -55,6 +56,20 @@ func validateJSONTagsConfig(jtc config.JSONTagsConfig, fldPath *field.Path) fiel
 		if _, err := regexp.Compile(jtc.JSONTagRegex); err != nil {
 			fieldErrors = append(fieldErrors, field.Invalid(fldPath.Child("jsonTagRegex"), jtc.JSONTagRegex, fmt.Sprintf("invalid regex: %v", err)))
 		}
+	}
+
+	return fieldErrors
+}
+
+// validateNoMapsConfig is used to validate the configuration in the config.NoMapsConfig struct.
+func validateNoMapsConfig(nmc config.NoMapsConfig, fldPath *field.Path) field.ErrorList {
+	fieldErrors := field.ErrorList{}
+
+	switch nmc.Policy {
+	case config.NoMapsEnforce, config.NoMapsAllowStringToStringMaps, config.NoMapsIgnore, "":
+		// Valid values
+	default:
+		fieldErrors = append(fieldErrors, field.Invalid(fldPath.Child("policy"), nmc.Policy, fmt.Sprintf("invalid value, must be one of %q, %q, %q or omitted", config.NoMapsEnforce, config.NoMapsAllowStringToStringMaps, config.NoMapsIgnore)))
 	}
 
 	return fieldErrors

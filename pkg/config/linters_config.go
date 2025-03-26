@@ -8,6 +8,9 @@ type LintersConfig struct {
 	// jsonTags contains configuration for the jsontags linter.
 	JSONTags JSONTagsConfig `json:"jsonTags"`
 
+	// nomaps contains configuration for the nomaps linter.
+	NoMaps NoMapsConfig `json:"nomaps"`
+
 	// optionalOrRequired contains configuration for the optionalorrequired linter.
 	OptionalOrRequired OptionalOrRequiredConfig `json:"optionalOrRequired"`
 
@@ -94,6 +97,31 @@ type JSONTagsConfig struct {
 	// By default, the regex used is "^[a-z][a-z0-9]*(?:[A-Z][a-z0-9]*)*$" and is used to check for
 	// camel case like string.
 	JSONTagRegex string `json:"jsonTagRegex"`
+}
+
+// NoMapsPolicy is the policy for the nomaps linter.
+type NoMapsPolicy string
+
+const (
+	// NoMapsEnforce indicates that all declarations for maps are rejected.
+	NoMapsEnforce NoMapsPolicy = "Enforce"
+
+	// NoMapsAllowStringToStringMaps indicates that only string to string maps are allowed.
+	NoMapsAllowStringToStringMaps NoMapsPolicy = "AllowStringToStringMaps"
+
+	// NoMapsIgnore indicates that all declarations which the value type is a primitive type are allowed.
+	NoMapsIgnore NoMapsPolicy = "Ignore"
+)
+
+// NoMapsConfig contains configuration for the nomaps linter.
+type NoMapsConfig struct {
+	// policy is the policy for the nomaps linter.
+	// Valid values are "Enforce", "AllowStringToStringMaps" and "Ignore".
+	// When set to "Enforce", all declarations for maps are rejected.
+	// When set to "AllowStringToStringMaps", only string to string maps are allowed.
+	// When set to "Ignore", maps of primitive types are allowed, but maps containing complex types are not allowed.
+	// When otherwise not specified, the default value is "AllowStringToStringMaps".
+	Policy NoMapsPolicy `json:"policy"`
 }
 
 // OptionalOrRequiredConfig contains configuration for the optionalorrequired linter.

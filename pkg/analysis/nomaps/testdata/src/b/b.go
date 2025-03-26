@@ -1,4 +1,4 @@
-package a
+package b
 
 type (
 	MapStringComponent    map[string]Component
@@ -28,7 +28,7 @@ type NoMapsTestStruct struct {
 	MapComponents    map[string]Component  `json:"mapComponents"` // want "MapComponents should not use a map type, use a list type with a unique name/identifier instead"
 	PtrMapComponents *map[string]Component `json:"mapComponents"` // want "MapComponents should not use a map type, use a list type with a unique name/identifier instead"
 	MapStringInt     map[string]int        `json:"mapStringInt"`  // want "MapStringInt should not use a map type, use a list type with a unique name/identifier instead"
-	Labels           map[string]string     `json:"specialCase"`
+	Labels           map[string]string     `json:"specialCase"`   // want "Labels should not use a map type, use a list type with a unique name/identifier instead"
 }
 
 type NoMapsTestStructWithDefiningType struct {

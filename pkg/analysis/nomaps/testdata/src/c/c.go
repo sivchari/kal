@@ -1,4 +1,4 @@
-package a
+package c
 
 type (
 	MapStringComponent    map[string]Component
