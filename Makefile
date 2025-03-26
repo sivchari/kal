@@ -43,6 +43,10 @@ vendor: ## Ensure the vendor directory is up to date.
 lint: ## Run golangci-lint over the codebase.
 	${GOLANGCI_LINT} run ./... --timeout 5m -v
 
+.PHONY: lint-fix
+lint-fix: $(GOLANGCI_LINT) ## Run golangci-lint over the codebase and run auto-fixers if supported by the linter
+	${GOLANGCI_LINT} run ./... --timeout 5m -v --fix
+
 .PHONY: test
 test: fmt vet unit ## Run tests.
 
