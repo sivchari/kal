@@ -16,7 +16,6 @@ limitations under the License.
 package statussubresource
 
 import (
-	"errors"
 	"fmt"
 	"go/ast"
 	"go/token"
@@ -24,6 +23,7 @@ import (
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
 	"golang.org/x/tools/go/ast/inspector"
+	kalerrors "sigs.k8s.io/kube-api-linter/pkg/analysis/errors"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/helpers/extractjsontags"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/helpers/markers"
 )
@@ -38,12 +38,6 @@ const (
 
 	// kubebuilderStatusSubresourceMarker is the marker that indicates that the CRD generated for a struct should include the /status subresource.
 	kubebuilderStatusSubresourceMarker = "kubebuilder:subresource:status"
-)
-
-var (
-	errCouldNotGetInspector = errors.New("could not get inspector")
-	errCouldNotGetMarkers   = errors.New("could not get markers")
-	errCouldNotGetJSONTags  = errors.New("could not get json tags")
 )
 
 type analyzer struct{}
@@ -63,17 +57,17 @@ func newAnalyzer() *analysis.Analyzer {
 func (a *analyzer) run(pass *analysis.Pass) (interface{}, error) {
 	inspect, ok := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	markersAccess, ok := pass.ResultOf[markers.Analyzer].(markers.Markers)
 	if !ok {
-		return nil, errCouldNotGetMarkers
+		return nil, kalerrors.ErrCouldNotGetMarkers
 	}
 
 	jsonTags, ok := pass.ResultOf[extractjsontags.Analyzer].(extractjsontags.StructFieldTags)
 	if !ok {
-		return nil, errCouldNotGetJSONTags
+		return nil, kalerrors.ErrCouldNotGetJSONTags
 	}
 
 	// Filter to type specs so we can get the names of types

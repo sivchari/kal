@@ -16,20 +16,16 @@ limitations under the License.
 package nobools
 
 import (
-	"errors"
 	"go/ast"
 
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
 	"golang.org/x/tools/go/ast/inspector"
+	kalerrors "sigs.k8s.io/kube-api-linter/pkg/analysis/errors"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/utils"
 )
 
 const name = "nobools"
-
-var (
-	errCouldNotGetInspector = errors.New("could not get inspector")
-)
 
 // Analyzer is the analyzer for the nobools package.
 // It checks that no struct fields are `bool`.
@@ -43,7 +39,7 @@ var Analyzer = &analysis.Analyzer{
 func run(pass *analysis.Pass) (interface{}, error) {
 	inspect, ok := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	// Filter to fields so that we can look at fields within structs.

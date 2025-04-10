@@ -16,7 +16,6 @@ limitations under the License.
 package commentstart
 
 import (
-	"errors"
 	"fmt"
 	"go/ast"
 	"go/token"
@@ -24,16 +23,13 @@ import (
 	"strings"
 
 	"golang.org/x/tools/go/analysis"
+	kalerrors "sigs.k8s.io/kube-api-linter/pkg/analysis/errors"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/helpers/extractjsontags"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/helpers/inspector"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/helpers/markers"
 )
 
 const name = "commentstart"
-
-var (
-	errCouldNotGetInspector = errors.New("could not get inspector")
-)
 
 // Analyzer is the analyzer for the commentstart package.
 // It checks that all struct fields in an API have a godoc, and that the godoc starts with the serialised field name.
@@ -47,7 +43,7 @@ var Analyzer = &analysis.Analyzer{
 func run(pass *analysis.Pass) (interface{}, error) {
 	inspect, ok := pass.ResultOf[inspector.Analyzer].(inspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	inspect.InspectFields(func(field *ast.Field, stack []ast.Node, jsonTagInfo extractjsontags.FieldTagInfo, markersAccess markers.Markers) {

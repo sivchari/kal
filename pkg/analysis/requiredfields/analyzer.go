@@ -16,12 +16,12 @@ limitations under the License.
 package requiredfields
 
 import (
-	"errors"
 	"fmt"
 	"go/ast"
 	"strings"
 
 	"golang.org/x/tools/go/analysis"
+	kalerrors "sigs.k8s.io/kube-api-linter/pkg/analysis/errors"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/helpers/extractjsontags"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/helpers/inspector"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/helpers/markers"
@@ -38,10 +38,6 @@ const (
 func init() {
 	markers.DefaultRegistry().Register(requiredMarker, kubebuilderRequiredMarker)
 }
-
-var (
-	errCouldNotGetInspector = errors.New("could not get inspector")
-)
 
 type analyzer struct {
 	pointerPolicy config.RequiredFieldPointerPolicy
@@ -66,7 +62,7 @@ func newAnalyzer(cfg config.RequiredFieldsConfig) *analysis.Analyzer {
 func (a *analyzer) run(pass *analysis.Pass) (interface{}, error) {
 	inspect, ok := pass.ResultOf[inspector.Analyzer].(inspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	inspect.InspectFields(func(field *ast.Field, stack []ast.Node, jsonTagInfo extractjsontags.FieldTagInfo, markersAccess markers.Markers) {

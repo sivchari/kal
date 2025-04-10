@@ -16,7 +16,6 @@ limitations under the License.
 package markers
 
 import (
-	"errors"
 	"go/ast"
 	"go/token"
 	"reflect"
@@ -25,6 +24,8 @@ import (
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
 	"golang.org/x/tools/go/ast/inspector"
+
+	kalerrors "sigs.k8s.io/kube-api-linter/pkg/analysis/errors"
 )
 
 // UnnamedExpression is the expression key used
@@ -37,11 +38,6 @@ import (
 // An example of a marker with named expressions
 // is "kubebuilder:validation:XValidation:rule='...',message='...'".
 const UnnamedExpression = ""
-
-var (
-	errCouldNotGetInspector  = errors.New("could not get inspector")
-	errCouldNotCreateMarkers = errors.New("could not create markers")
-)
 
 // Markers allows access to markers extracted from the
 // go types.
@@ -120,7 +116,7 @@ var Analyzer = &analysis.Analyzer{
 func run(pass *analysis.Pass) (interface{}, error) {
 	inspect, ok := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	nodeFilter := []ast.Node{
@@ -146,7 +142,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 	results, ok := newMarkers().(*markers)
 	if !ok {
-		return nil, errCouldNotCreateMarkers
+		return nil, kalerrors.ErrCouldNotCreateMarkers
 	}
 
 	inspect.Preorder(nodeFilter, func(n ast.Node) {

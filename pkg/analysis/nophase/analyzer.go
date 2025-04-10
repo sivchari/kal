@@ -16,22 +16,17 @@ limitations under the License.
 package nophase
 
 import (
-	"errors"
 	"go/ast"
 	"strings"
 
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
 	"golang.org/x/tools/go/ast/inspector"
+	kalerrors "sigs.k8s.io/kube-api-linter/pkg/analysis/errors"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/helpers/extractjsontags"
 )
 
 const name = "nophase"
-
-var (
-	errCouldNotGetInspector = errors.New("could not get inspector")
-	errCouldNotGetJSONTags  = errors.New("could not get json tags")
-)
 
 // Analyzer is the analyzer for the nophase package.
 // It checks that no struct fields named 'phase', or that contain phase as a
@@ -46,12 +41,12 @@ var Analyzer = &analysis.Analyzer{
 func run(pass *analysis.Pass) (interface{}, error) {
 	inspect, ok := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	jsonTags, ok := pass.ResultOf[extractjsontags.Analyzer].(extractjsontags.StructFieldTags)
 	if !ok {
-		return nil, errCouldNotGetJSONTags
+		return nil, kalerrors.ErrCouldNotGetJSONTags
 	}
 
 	// Filter to fields so that we can iterate over fields in a struct.
