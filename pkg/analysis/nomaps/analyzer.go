@@ -16,13 +16,13 @@ limitations under the License.
 package nomaps
 
 import (
-	"errors"
 	"fmt"
 	"go/ast"
 	"go/token"
 	"go/types"
 
 	"golang.org/x/tools/go/analysis"
+	kalerrors "sigs.k8s.io/kube-api-linter/pkg/analysis/errors"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/helpers/extractjsontags"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/helpers/inspector"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/helpers/markers"
@@ -31,10 +31,6 @@ import (
 
 const (
 	name = "nomaps"
-)
-
-var (
-	errCouldNotGetInspector = errors.New("could not get inspector")
 )
 
 type analyzer struct {
@@ -60,7 +56,7 @@ func newAnalyzer(cfg config.NoMapsConfig) *analysis.Analyzer {
 func (a *analyzer) run(pass *analysis.Pass) (any, error) {
 	inspect, ok := pass.ResultOf[inspector.Analyzer].(inspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	inspect.InspectFields(func(field *ast.Field, stack []ast.Node, jsonTagInfo extractjsontags.FieldTagInfo, markersAccess markers.Markers) {

@@ -16,11 +16,11 @@ limitations under the License.
 package maxlength
 
 import (
-	"errors"
 	"fmt"
 	"go/ast"
 
 	"golang.org/x/tools/go/analysis"
+	kalerrors "sigs.k8s.io/kube-api-linter/pkg/analysis/errors"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/helpers/extractjsontags"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/helpers/inspector"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/helpers/markers"
@@ -40,10 +40,6 @@ const (
 	kubebuilderMaxItems = "kubebuilder:validation:MaxItems"
 )
 
-var (
-	errCouldNotGetInspector = errors.New("could not get inspector")
-)
-
 // Analyzer is the analyzer for the maxlength package.
 // It checks that strings and arrays have maximum lengths and maximum items respectively.
 var Analyzer = &analysis.Analyzer{
@@ -56,7 +52,7 @@ var Analyzer = &analysis.Analyzer{
 func run(pass *analysis.Pass) (interface{}, error) {
 	inspect, ok := pass.ResultOf[inspector.Analyzer].(inspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	inspect.InspectFields(func(field *ast.Field, stack []ast.Node, jsonTagInfo extractjsontags.FieldTagInfo, markersAccess markers.Markers) {

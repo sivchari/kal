@@ -16,11 +16,11 @@ limitations under the License.
 package jsontags
 
 import (
-	"errors"
 	"fmt"
 	"go/ast"
 	"regexp"
 
+	kalerrors "sigs.k8s.io/kube-api-linter/pkg/analysis/errors"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/helpers/extractjsontags"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/helpers/inspector"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/helpers/markers"
@@ -34,10 +34,6 @@ const (
 	camelCaseRegex = "^[a-z][a-z0-9]*(?:[A-Z][a-z0-9]*)*$"
 
 	name = "jsontags"
-)
-
-var (
-	errCouldNotGetInspector = errors.New("could not get inspector")
 )
 
 type analyzer struct {
@@ -68,7 +64,7 @@ func newAnalyzer(cfg config.JSONTagsConfig) (*analysis.Analyzer, error) {
 func (a *analyzer) run(pass *analysis.Pass) (interface{}, error) {
 	inspect, ok := pass.ResultOf[inspector.Analyzer].(inspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	inspect.InspectFields(func(field *ast.Field, stack []ast.Node, jsonTagInfo extractjsontags.FieldTagInfo, markersAccess markers.Markers) {

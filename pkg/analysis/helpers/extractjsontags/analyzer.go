@@ -16,7 +16,6 @@ limitations under the License.
 package extractjsontags
 
 import (
-	"errors"
 	"go/ast"
 	"go/token"
 	"reflect"
@@ -26,11 +25,8 @@ import (
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
 	"golang.org/x/tools/go/ast/inspector"
-)
 
-var (
-	errCouldNotGetInspector          = errors.New("could not get inspector")
-	errCouldNotCreateStructFieldTags = errors.New("could not create new structFieldTags")
+	kalerrors "sigs.k8s.io/kube-api-linter/pkg/analysis/errors"
 )
 
 // StructFieldTags is used to find information about
@@ -71,7 +67,7 @@ var Analyzer = &analysis.Analyzer{
 func run(pass *analysis.Pass) (interface{}, error) {
 	inspect, ok := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	// Filter to structs so that we can iterate over fields in a struct.
@@ -81,7 +77,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 	results, ok := newStructFieldTags().(*structFieldTags)
 	if !ok {
-		return nil, errCouldNotCreateStructFieldTags
+		return nil, kalerrors.ErrCouldNotCreateStructFieldTags
 	}
 
 	inspect.Preorder(nodeFilter, func(n ast.Node) {

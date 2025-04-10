@@ -16,7 +16,6 @@ limitations under the License.
 package conditions
 
 import (
-	"errors"
 	"fmt"
 	"go/ast"
 	"go/token"
@@ -26,6 +25,7 @@ import (
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
 	"golang.org/x/tools/go/ast/inspector"
+	kalerrors "sigs.k8s.io/kube-api-linter/pkg/analysis/errors"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/helpers/extractjsontags"
 	"sigs.k8s.io/kube-api-linter/pkg/analysis/helpers/markers"
 	"sigs.k8s.io/kube-api-linter/pkg/config"
@@ -62,11 +62,6 @@ func init() {
 	)
 }
 
-var (
-	errCouldNotGetInspector = errors.New("could not get inspector")
-	errCouldNotGetMarkers   = errors.New("could not get markers")
-)
-
 type analyzer struct {
 	isFirstField     config.ConditionsFirstField
 	useProtobuf      config.ConditionsUseProtobuf
@@ -94,12 +89,12 @@ func newAnalyzer(cfg config.ConditionsConfig) *analysis.Analyzer {
 func (a *analyzer) run(pass *analysis.Pass) (interface{}, error) {
 	inspect, ok := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 	if !ok {
-		return nil, errCouldNotGetInspector
+		return nil, kalerrors.ErrCouldNotGetInspector
 	}
 
 	markersAccess, ok := pass.ResultOf[markers.Analyzer].(markers.Markers)
 	if !ok {
-		return nil, errCouldNotGetMarkers
+		return nil, kalerrors.ErrCouldNotGetMarkers
 	}
 
 	// Filter to structs so that we can iterate over fields in a struct.
